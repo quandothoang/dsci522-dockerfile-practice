@@ -1,8 +1,14 @@
 FROM quay.io/jupyter/minimal-notebook:afe30f0c9ad8
 
+SHELL ["/bin/bash", "-o", "pipefail", "-c"]
+
+USER root
+
 COPY conda-linux-64.lock /tmp/conda-linux-64.lock
 
-RUN mamba install --yes --file /tmp/conda-linux-64.lock \
-    && mamba clean --all -y -f \
-    && fix-permissions "${CONDA_DIR}" \
-    && fix-permissions "/home/${NB_USER}"
+USER ${NB_UID}
+
+RUN conda install --yes --file /tmp/conda-linux-64.lock && \
+    conda clean --all -f -y && \
+    fix-permissions "${CONDA_DIR}" && \
+    fix-permissions "/home/${NB_USER}"
